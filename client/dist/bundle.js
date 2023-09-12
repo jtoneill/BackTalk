@@ -1,5 +1,4 @@
 /******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
 /***/ "./client/src/components/App.jsx":
@@ -8,6 +7,7 @@
   \***************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
@@ -119,14 +119,19 @@ function App() {
       };
       mediaRecorder.current.onstop = function () {
         console.log("data available after MediaRecorder.stop() called.");
-        var clipName = prompt('Enter a name for your sound clip?', 'clip name');
+        var clipName = "clip".concat(selected);
         var blob = new Blob(_toConsumableArray(chunks.current), {
-          'type': 'audio/ogg; codecs=opus'
+          'type': 'audio/wav'
         });
         console.log('blob:', blob);
         var audioURL = window.URL.createObjectURL(blob);
+        console.log('audioURL:', audioURL);
+        if (clips.current[selected.src !== undefined]) {
+          clips.current[selected].src.revokeObjectURL();
+          clips.current[selected].reversed.revokeObjectURL();
+        }
         clips.current[selected].src = audioURL;
-        clips.current[selected].reversed = (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob);
+        (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob, clips, selected);
         console.log("recorder stopped, clips.current: ", clips.current);
         setBurn(!burn);
       };
@@ -167,6 +172,7 @@ function App() {
   \****************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
@@ -185,15 +191,31 @@ function Clip(_ref) {
     idx = _ref.idx,
     setSelected = _ref.setSelected,
     clips = _ref.clips;
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState2 = _slicedToArray(_useState, 2),
-    playbackSpeed = _useState2[0],
-    setPlaybackSpeed = _useState2[1];
+    preservePitch = _useState2[0],
+    setPreservePitch = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState4 = _slicedToArray(_useState3, 2),
+    playbackSpeed = _useState4[0],
+    setPlaybackSpeed = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    reverse = _useState6[0],
+    setReverse = _useState6[1];
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // console.log('speed updated');
     audioElement.current.playbackRate = playbackSpeed;
   }, [playbackSpeed]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    slider.current.value = playbackSpeed;
+  }, [reverse]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    // console.log('speed updated');
+    slider.current.value = 1;
+  }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "clip clip".concat(idx + 1),
     onClick: function onClick() {
@@ -201,18 +223,36 @@ function Clip(_ref) {
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", null, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
     controls: true,
-    src: soundClip.src,
+    src: reverse ? soundClip.reversed : soundClip.src,
     ref: audioElement
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "range",
     min: "0.1",
-    max: "4",
+    max: "3",
     step: "0.1",
-    "class": "slider",
-    onChange: function onChange(e) {
-      e.preventDefault();
+    ref: slider,
+    onMouseUp: function onMouseUp(e) {
+      // e.preventDefault();
       // console.log('a', e.target.value);
+      slider.current.value = e.target.value;
       setPlaybackSpeed(e.target.value);
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "checkbox",
+    onChange: function onChange(e) {
+      // use the reversed audio source
+      // e.preventDefault();
+      console.log(e.target.value);
+      setReverse(!reverse);
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "checkbox",
+    onChange: function onChange(e) {
+      // allow pitch to shift
+      // e.preventDefault();
+      // console.log(e.target.value);
+      audioElement.current.preservesPitch = preservePitch;
+      setPreservePitch(!preservePitch);
     }
   }));
 }
@@ -226,6 +266,7 @@ function Clip(_ref) {
   \********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
@@ -265,6 +306,7 @@ function Controls(_ref) {
   \**********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
@@ -305,6 +347,7 @@ function SoundClips(_ref) {
   \**********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
@@ -372,30 +415,133 @@ function Visualizer(_ref) {
 
 /***/ }),
 
+/***/ "./client/src/utils/convert.js":
+/*!*************************************!*\
+  !*** ./client/src/utils/convert.js ***!
+  \*************************************/
+/***/ ((module) => {
+
+module.exports = {
+  buffToWav: function buffToWav(buffer) {
+    // converts audio buffer to wav
+    var numberOfChannels = buffer.numberOfChannels;
+    var sampleRate = buffer.sampleRate;
+    var interleaved = new Float32Array(buffer.length * numberOfChannels);
+    var view = new DataView(new ArrayBuffer(44 + interleaved.length * 2));
+    var channels = [];
+    for (var channel = 0; channel < numberOfChannels; channel++) {
+      channels.push(buffer.getChannelData(channel));
+    }
+    for (var sample = 0; sample < buffer.length; sample++) {
+      for (var _channel = 0; _channel < numberOfChannels; _channel++) {
+        interleaved[sample * numberOfChannels + _channel] = channels[_channel][sample];
+      }
+    }
+    var writeUTFBytes = function writeUTFBytes(view, offset, string) {
+      for (var i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+
+    // RIFF header
+    writeUTFBytes(view, 0, 'RIFF');
+    view.setUint32(4, 44 + interleaved.length * 2, true);
+    writeUTFBytes(view, 8, 'WAVE');
+
+    // Format chunk
+    writeUTFBytes(view, 12, 'fmt ');
+    view.setUint32(16, 16, true); // PCM format
+    view.setUint16(20, 1, true); // Mono (1 channel) or Stereo (2 channels)
+    view.setUint16(22, numberOfChannels, true); // Number of channels
+    view.setUint32(24, sampleRate, true); // Sample rate
+    view.setUint32(28, sampleRate * 2 * numberOfChannels, true); // Byte rate
+    view.setUint16(32, numberOfChannels * 2, true); // Block align
+    view.setUint16(34, 16, true); // 16-bit (2 bytes) sample size
+
+    // Data chunk
+    writeUTFBytes(view, 36, 'data');
+    view.setUint32(40, interleaved.length * 2, true);
+
+    // Write the interleaved audio data
+    for (var i = 0; i < interleaved.length; i++) {
+      view.setInt16(44 + i * 2, interleaved[i] * 0x7FFF, true);
+    }
+    return view;
+  }
+};
+
+/***/ }),
+
 /***/ "./client/src/utils/reverse.js":
 /*!*************************************!*\
   !*** ./client/src/utils/reverse.js ***!
   \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-var reverse = function reverse(blob) {
-  var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  audioContext.decodeAudioData(blob.arrayBuffer(), function (audioBuffer) {
-    var reversedBuffer = audioContext.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
-    for (var channel = 0; channel < audioBuffer.numberOfChannels; channel += 1) {
-      var inputData = audioBuffer.getChannelData(channel);
-      var outputData = reversedBuffer.getChannelData(channel);
-      for (var i = 0; i < audioBuffer.length; i += 1) {
-        outputData[i] = inputData[audioBuffer.length - 1 - i];
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return { value: void 0, done: !0 }; } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable || "" === iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } throw new TypeError(_typeof(iterable) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+var convert = __webpack_require__(/*! ./convert.js */ "./client/src/utils/convert.js");
+var reverse = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(blob, clips, selected) {
+    var audioContext, arrBuffer;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          _context2.next = 3;
+          return blob.arrayBuffer();
+        case 3:
+          arrBuffer = _context2.sent;
+          console.log('dis', arrBuffer);
+          audioContext.decodeAudioData(arrBuffer, /*#__PURE__*/function () {
+            var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(audioBuffer) {
+              var reversedBuffer, channel, inputData, outputData, i, reversedWav, reversedBlob, reversedURL;
+              return _regeneratorRuntime().wrap(function _callee$(_context) {
+                while (1) switch (_context.prev = _context.next) {
+                  case 0:
+                    reversedBuffer = audioContext.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+                    for (channel = 0; channel < audioBuffer.numberOfChannels; channel += 1) {
+                      inputData = audioBuffer.getChannelData(channel);
+                      outputData = reversedBuffer.getChannelData(channel);
+                      for (i = 0; i < audioBuffer.length; i += 1) {
+                        outputData[i] = inputData[audioBuffer.length - 1 - i];
+                      }
+                    }
+                    reversedWav = convert.buffToWav(reversedBuffer);
+                    reversedBlob = new Blob([reversedWav], {
+                      'type': 'audio/wav'
+                    });
+                    console.log('reversedBlob', reversedBlob);
+                    reversedURL = window.URL.createObjectURL(reversedBlob);
+                    console.log('end', reversedURL);
+                    clips.current[selected].reversed = reversedURL;
+                  case 8:
+                  case "end":
+                    return _context.stop();
+                }
+              }, _callee);
+            }));
+            return function (_x4) {
+              return _ref2.apply(this, arguments);
+            };
+          }());
+        case 6:
+        case "end":
+          return _context2.stop();
       }
-    }
-    return reversedBuffer.numberOfChannels;
-  });
-};
+    }, _callee2);
+  }));
+  return function reverse(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (reverse);
 
 /***/ }),
@@ -406,6 +552,7 @@ var reverse = function reverse(blob) {
   \*************************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
+"use strict";
 /**
  * @license React
  * react-dom.development.js
@@ -5362,6 +5509,7 @@ console.info('%cDownload the React DevTools '+'for a better development experien
   \******************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
+"use strict";
 
 
 var m = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
@@ -5393,6 +5541,7 @@ if (false) {} else {
   \*****************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+"use strict";
 
 
 function checkDCE() {
@@ -5431,6 +5580,7 @@ if (false) {} else {
   \*****************************************************/
 /***/ ((module, exports, __webpack_require__) => {
 
+"use strict";
 /* module decorator */ module = __webpack_require__.nmd(module);
 /**
  * @license React
@@ -7842,6 +7992,7 @@ if (true) {
   \*************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+"use strict";
 
 
 if (false) {} else {
@@ -7856,6 +8007,7 @@ if (false) {} else {
   \*************************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
+"use strict";
 /**
  * @license React
  * scheduler.development.js
@@ -8395,6 +8547,7 @@ if (true) {
   \*****************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+"use strict";
 
 
 if (false) {} else {
@@ -8484,8 +8637,9 @@ if (false) {} else {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
+"use strict";
 /*!******************************!*\
   !*** ./client/src/index.jsx ***!
   \******************************/

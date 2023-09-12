@@ -75,15 +75,21 @@ function App() {
       mediaRecorder.current.onstop = function() {
         console.log("data available after MediaRecorder.stop() called.");
 
-        const clipName = prompt('Enter a name for your sound clip?','clip name');
+        const clipName = `clip${selected}`;
 
-        const blob = new Blob([...chunks.current], { 'type' : 'audio/ogg; codecs=opus' });
+        const blob = new Blob([...chunks.current], { 'type' : 'audio/wav' });
         console.log('blob:', blob);
 
         const audioURL = window.URL.createObjectURL(blob);
+        console.log('audioURL:', audioURL);
 
+        if(clips.current[selected.src !== undefined]) {
+          clips.current[selected].src.revokeObjectURL();
+          clips.current[selected].reversed.revokeObjectURL();
+        }
         clips.current[selected].src = audioURL;
-        clips.current[selected].reversed = reverse(blob);
+        reverse(blob, clips, selected);
+
         console.log("recorder stopped, clips.current: ", clips.current);
 
         setBurn(!burn);
