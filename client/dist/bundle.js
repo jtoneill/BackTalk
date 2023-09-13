@@ -52,28 +52,36 @@ function App() {
     setSelected = _useState8[1];
   var clips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([{
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }, {
     src: undefined,
-    label: 'Clip'
+    fSpeed: 1,
+    rSpeed: 1
   }]);
   var mainSection = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var mediaRecorder = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
@@ -84,12 +92,7 @@ function App() {
     renderCount.current = 0;
   }
   renderCount.current++;
-
-  // const canvasCtx = canvasRef.current.getContext("2d");
-
-  console.log('this is here now ok yay, selected: ', selected);
-
-  //main block for doing the audio recording
+  console.log('App.jsx has rendered', renderCount.current, 'times, clip selected:', selected + 1);
   var record = function record() {
     setRecording(true);
     chunks.current = [];
@@ -102,9 +105,7 @@ function App() {
     mediaRecorder.current.stop();
     console.log(mediaRecorder.current.state);
     console.log("recorder stopped");
-    // finalizeAudio();
   };
-
   if (navigator.mediaDevices.getUserMedia) {
     console.log('getUserMedia supported.');
     var constraints = {
@@ -130,9 +131,10 @@ function App() {
           clips.current[selected].src.revokeObjectURL();
           clips.current[selected].reversed.revokeObjectURL();
         }
-        clips.current[selected].src = audioURL;
-        (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob, clips, selected);
-        console.log("recorder stopped, clips.current: ", clips.current);
+        clips.current[selected].src = audioURL; // Saves the recording in clips
+        (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob, clips, selected); // Saves the reversed recording in clips
+
+        console.log("audio saved to clips: ", clips.current);
         setBurn(!burn);
       };
     };
@@ -206,15 +208,22 @@ function Clip(_ref) {
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // console.log('speed updated');
+    // updates the audio elements playbackRate
     audioElement.current.playbackRate = playbackSpeed;
   }, [playbackSpeed]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    slider.current.value = playbackSpeed;
+    // sets the slider to the stored speed when switching between forward and reversed
+    if (reverse) {
+      slider.current.value = clips.current[idx].rSpeed;
+      setPlaybackSpeed(clips.current[idx].rSpeed);
+    } else {
+      slider.current.value = clips.current[idx].fSpeed;
+      setPlaybackSpeed(clips.current[idx].fSpeed);
+    }
   }, [reverse]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // console.log('speed updated');
-    slider.current.value = 1;
+    // sets the speed to 1 on load
+    slider.current.value = soundClip.fSpeed;
   }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "clip clip".concat(idx + 1),
@@ -231,17 +240,21 @@ function Clip(_ref) {
     max: "3",
     step: "0.1",
     ref: slider,
-    onMouseUp: function onMouseUp(e) {
-      // e.preventDefault();
-      // console.log('a', e.target.value);
+    onChange: function onChange(e) {
       slider.current.value = e.target.value;
       setPlaybackSpeed(e.target.value);
+    },
+    onMouseUp: function onMouseUp(e) {
+      if (reverse) {
+        clips.current[idx].rSpeed = e.target.value;
+      } else {
+        clips.current[idx].fSpeed = e.target.value;
+      }
     }
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     onChange: function onChange(e) {
       // use the reversed audio source
-      // e.preventDefault();
       console.log(e.target.value);
       setReverse(!reverse);
     }
@@ -249,8 +262,6 @@ function Clip(_ref) {
     type: "checkbox",
     onChange: function onChange(e) {
       // allow pitch to shift
-      // e.preventDefault();
-      // console.log(e.target.value);
       audioElement.current.preservesPitch = preservePitch;
       setPreservePitch(!preservePitch);
     }
@@ -408,7 +419,8 @@ function Visualizer(_ref) {
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("canvas", {
     className: "visualizer",
     ref: canvasRef,
-    height: "60px"
+    height: "80px",
+    width: "500px"
   }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Visualizer);

@@ -13,14 +13,14 @@ function App() {
 
 
   const clips = useRef([
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
-    {src: undefined, label: 'Clip'},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
+    {src: undefined, fSpeed: 1, rSpeed: 1},
   ]);
   const mainSection = useRef();
   const mediaRecorder = useRef();
@@ -33,13 +33,8 @@ function App() {
   }
   renderCount.current++;
 
-  // const canvasCtx = canvasRef.current.getContext("2d");
+  console.log('App.jsx has rendered', renderCount.current, 'times, clip selected:', selected + 1);
 
-
-  console.log('this is here now ok yay, selected: ', selected);
-
-
-  //main block for doing the audio recording
   const record = function() {
     setRecording(true);
     chunks.current = [];
@@ -53,7 +48,6 @@ function App() {
     mediaRecorder.current.stop();
     console.log(mediaRecorder.current.state);
     console.log("recorder stopped");
-    // finalizeAudio();
   }
 
   if (navigator.mediaDevices.getUserMedia) {
@@ -87,10 +81,11 @@ function App() {
           clips.current[selected].src.revokeObjectURL();
           clips.current[selected].reversed.revokeObjectURL();
         }
-        clips.current[selected].src = audioURL;
-        reverse(blob, clips, selected);
 
-        console.log("recorder stopped, clips.current: ", clips.current);
+        clips.current[selected].src = audioURL; // Saves the recording in clips
+        reverse(blob, clips, selected); // Saves the reversed recording in clips
+
+        console.log("audio saved to clips: ", clips.current);
 
         setBurn(!burn);
 

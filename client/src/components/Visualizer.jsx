@@ -72,7 +72,7 @@ function Visualizer({ mainSection }) {
 
   return (
     <div id="Waveform">
-      <canvas className="visualizer" ref={canvasRef} height="60px"></canvas>
+      <canvas className="visualizer" ref={canvasRef} height="80px" width="500px"></canvas>
     </div>
   );
 

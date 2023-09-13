@@ -8,18 +8,22 @@ function Clip({ soundClip, idx, setSelected, clips }) {
   const audioElement = useRef();
   const slider = useRef();
 
-  useEffect(() => {
-    // console.log('speed updated');
+  useEffect(() => { // updates the audio elements playbackRate
     audioElement.current.playbackRate = playbackSpeed;
   }, [playbackSpeed]);
 
-  useEffect(() => {
-    slider.current.value = playbackSpeed;
+  useEffect(() => { // sets the slider to the stored speed when switching between forward and reversed
+    if(reverse) {
+      slider.current.value = clips.current[idx].rSpeed;
+      setPlaybackSpeed(clips.current[idx].rSpeed);
+    } else {
+      slider.current.value = clips.current[idx].fSpeed;
+      setPlaybackSpeed(clips.current[idx].fSpeed);
+    }
   }, [reverse]);
 
-  useEffect(() => {
-    // console.log('speed updated');
-    slider.current.value = 1;
+  useEffect(() => { // sets the speed to 1 on load
+    slider.current.value = soundClip.fSpeed;
   }, []);
 
   return (
@@ -32,25 +36,33 @@ function Clip({ soundClip, idx, setSelected, clips }) {
         max="3"
         step="0.1"
         ref={slider}
-        onMouseUp={(e) => {
-          // e.preventDefault();
-          // console.log('a', e.target.value);
+        onChange={(e) => {
           slider.current.value = e.target.value;
           setPlaybackSpeed(e.target.value);
         }}
+        onMouseUp={(e) => {
+          if(reverse) {
+            clips.current[idx].rSpeed = e.target.value;
+          } else {
+            clips.current[idx].fSpeed = e.target.value;
+          }
+        }}
       />
-      <input type="checkbox" onChange={(e) => { // use the reversed audio source
-        // e.preventDefault();
-        console.log(e.target.value);
-        setReverse(!reverse);
+      <input
+        type="checkbox"
+        onChange={(e) => { // use the reversed audio source
+          console.log(e.target.value);
+          setReverse(!reverse);
 
-      }}/>
-      <input type="checkbox" onChange={(e) => { // allow pitch to shift
-        // e.preventDefault();
-        // console.log(e.target.value);
-        audioElement.current.preservesPitch = preservePitch;
-        setPreservePitch(!preservePitch);
-      }}/>
+        }}
+      />
+      <input
+        type="checkbox"
+        onChange={(e) => { // allow pitch to shift
+          audioElement.current.preservesPitch = preservePitch;
+          setPreservePitch(!preservePitch);
+        }}
+      />
     </div>
   );
 
