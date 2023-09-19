@@ -50,43 +50,39 @@ function App() {
     _useState8 = _slicedToArray(_useState7, 2),
     selected = _useState8[0],
     setSelected = _useState8[1];
-  var clips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([{
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }, {
-    src: undefined,
-    fSpeed: 1,
-    rSpeed: 1
-  }]);
-  var mainSection = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    _useState10 = _slicedToArray(_useState9, 2),
+    preservePitch = _useState10[0],
+    setPreservePitch = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState12 = _slicedToArray(_useState11, 2),
+    playbackSpeed = _useState12[0],
+    setPlaybackSpeed = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState14 = _slicedToArray(_useState13, 2),
+    reverse = _useState14[0],
+    setReverse = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState16 = _slicedToArray(_useState15, 2),
+    loop = _useState16[0],
+    setLoop = _useState16[1];
+  var chunks = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var mediaRecorder = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var soundClips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-  var chunks = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var clips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
+  if (clips.current.length === 0) {
+    for (var i = 0; i < 8; i += 1) {
+      clips.current.push({
+        forwardSrc: undefined,
+        reversedSrc: undefined,
+        fSpeed: 1,
+        rSpeed: 1,
+        reversed: false,
+        pitchLock: false,
+        loop: false
+      });
+    }
+  }
   var renderCount = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   if (!renderCount.current) {
     renderCount.current = 0;
@@ -120,18 +116,18 @@ function App() {
       };
       mediaRecorder.current.onstop = function () {
         console.log("data available after MediaRecorder.stop() called.");
-        var clipName = "clip".concat(selected);
+        var clipName = "clip ".concat(selected);
         var blob = new Blob(_toConsumableArray(chunks.current), {
           'type': 'audio/wav'
         });
         console.log('blob:', blob);
         var audioURL = window.URL.createObjectURL(blob);
         console.log('audioURL:', audioURL);
-        if (clips.current[selected.src !== undefined]) {
-          clips.current[selected].src.revokeObjectURL();
-          clips.current[selected].reversed.revokeObjectURL();
+        if (clips.current[selected.forwardSrc !== undefined]) {
+          clips.current[selected].forwardSrc.revokeObjectURL();
+          clips.current[selected].reversedSrc.revokeObjectURL();
         }
-        clips.current[selected].src = audioURL; // Saves the recording in clips
+        clips.current[selected].forwardSrc = audioURL; // Saves the recording in clips
         (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob, clips, selected); // Saves the reversed recording in clips
 
         console.log("audio saved to clips: ", clips.current);
@@ -148,20 +144,31 @@ function App() {
     console.log('getUserMedia not supported on your browser!');
   }
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-    id: "Wrapper",
-    ref: mainSection
+    id: "Wrapper"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("header", null, "BackTalk", renderCount.current), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "Recorder"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Visualizer_jsx__WEBPACK_IMPORTED_MODULE_1__["default"], {
-    mainSection: mainSection
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Controls_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Visualizer_jsx__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Controls_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     recording: recording,
     record: record,
-    stopRec: stopRec
+    stopRec: stopRec,
+    clips: clips,
+    selected: selected,
+    playbackSpeed: playbackSpeed,
+    setPlaybackSpeed: setPlaybackSpeed,
+    reverse: reverse,
+    setReverse: setReverse,
+    loop: loop,
+    setLoop: setLoop,
+    preservePitch: preservePitch,
+    setPreservePitch: setPreservePitch
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_SoundClips_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
     clips: clips,
     setSelected: setSelected,
-    burn: burn
+    burn: burn,
+    playbackSpeed: playbackSpeed,
+    reverse: reverse,
+    loop: loop,
+    preservePitch: preservePitch
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("footer", null, "footer"));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
@@ -181,50 +188,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function Clip(_ref) {
   var soundClip = _ref.soundClip,
     idx = _ref.idx,
     setSelected = _ref.setSelected,
-    clips = _ref.clips;
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-    _useState2 = _slicedToArray(_useState, 2),
-    preservePitch = _useState2[0],
-    setPreservePitch = _useState2[1];
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
-    _useState4 = _slicedToArray(_useState3, 2),
-    playbackSpeed = _useState4[0],
-    setPlaybackSpeed = _useState4[1];
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    reverse = _useState6[0],
-    setReverse = _useState6[1];
+    clips = _ref.clips,
+    playbackSpeed = _ref.playbackSpeed,
+    reverse = _ref.reverse,
+    preservePitch = _ref.preservePitch;
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
-  var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // updates the audio elements playbackRate
-    audioElement.current.playbackRate = playbackSpeed;
+    audioElement.current.playbackRate = reverse ? clips.current[idx].rSpeed : clips.current[idx].fSpeed;
   }, [playbackSpeed]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // sets the slider to the stored speed when switching between forward and reversed
-    if (reverse) {
-      slider.current.value = clips.current[idx].rSpeed;
-      setPlaybackSpeed(clips.current[idx].rSpeed);
-    } else {
-      slider.current.value = clips.current[idx].fSpeed;
-      setPlaybackSpeed(clips.current[idx].fSpeed);
-    }
-  }, [reverse]);
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // sets the speed to 1 on load
-    slider.current.value = soundClip.fSpeed;
-  }, []);
+    audioElement.current.preservesPitch = clips.current[idx].pitchLock;
+  }, [preservePitch]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "clip clip".concat(idx + 1),
     onClick: function onClick() {
@@ -232,39 +213,8 @@ function Clip(_ref) {
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", null, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
     controls: true,
-    src: reverse ? soundClip.reversed : soundClip.src,
+    src: soundClip.reversed ? soundClip.reversedSrc : soundClip.forwardSrc,
     ref: audioElement
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
-    type: "range",
-    min: "0.1",
-    max: "3",
-    step: "0.1",
-    ref: slider,
-    onChange: function onChange(e) {
-      slider.current.value = e.target.value;
-      setPlaybackSpeed(e.target.value);
-    },
-    onMouseUp: function onMouseUp(e) {
-      if (reverse) {
-        clips.current[idx].rSpeed = e.target.value;
-      } else {
-        clips.current[idx].fSpeed = e.target.value;
-      }
-    }
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
-    type: "checkbox",
-    onChange: function onChange(e) {
-      // use the reversed audio source
-      console.log(e.target.value);
-      setReverse(!reverse);
-    }
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
-    type: "checkbox",
-    onChange: function onChange(e) {
-      // allow pitch to shift
-      audioElement.current.preservesPitch = preservePitch;
-      setPreservePitch(!preservePitch);
-    }
   }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Clip);
@@ -288,7 +238,42 @@ __webpack_require__.r(__webpack_exports__);
 function Controls(_ref) {
   var recording = _ref.recording,
     record = _ref.record,
-    stopRec = _ref.stopRec;
+    stopRec = _ref.stopRec,
+    clips = _ref.clips,
+    selected = _ref.selected,
+    playbackSpeed = _ref.playbackSpeed,
+    setPlaybackSpeed = _ref.setPlaybackSpeed,
+    reverse = _ref.reverse,
+    setReverse = _ref.setReverse,
+    loop = _ref.loop,
+    setLoop = _ref.setLoop,
+    preservePitch = _ref.preservePitch,
+    setPreservePitch = _ref.setPreservePitch;
+  var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var pitch = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var reverseCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    // sets the slider to the stored speed when switching between forward and reversed
+    if (reverse) {
+      slider.current.value = clips.current[selected].rSpeed;
+      setPlaybackSpeed(clips.current[selected].rSpeed);
+      pitch.current.checked = clips.current[selected].pitchLock;
+      reverseCheckbox.current.checked = true;
+    } else {
+      slider.current.value = clips.current[selected].fSpeed;
+      setPlaybackSpeed(clips.current[selected].fSpeed);
+      pitch.current.checked = clips.current[selected].pitchLock;
+      reverseCheckbox.current.checked = false;
+    }
+  }, [selected, reverse]);
+
+  // useEffect(() => {
+
+  // }, [selected])
+
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    slider.current.value = clips.current[selected].fSpeed;
+  }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "main-controls"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
@@ -305,7 +290,41 @@ function Controls(_ref) {
       e.preventDefault();
       stopRec();
     }
-  }, "Stop"));
+  }, "Stop"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "range",
+    min: "0.1",
+    max: "3",
+    step: "0.1",
+    ref: slider,
+    onChange: function onChange(e) {
+      slider.current.value = e.target.value;
+      setPlaybackSpeed(e.target.value);
+      if (reverse) {
+        clips.current[selected].rSpeed = e.target.value;
+      } else {
+        clips.current[selected].fSpeed = e.target.value;
+      }
+    },
+    onMouseUp: function onMouseUp(e) {}
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "checkbox",
+    ref: reverseCheckbox,
+    onChange: function onChange(e) {
+      // toggle the reversed audio source
+      console.log('toggle reverse', e.target.value);
+      setReverse(!clips.current[selected].reversed);
+      clips.current[selected].reversed = !clips.current[selected].reversed;
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "checkbox",
+    ref: pitch,
+    onChange: function onChange(e) {
+      // allow pitch to shift
+      // audioElement.current.preservesPitch = preservePitch;
+      setPreservePitch(!preservePitch);
+      clips.current[selected].pitchLock = !clips.current[selected].pitchLock;
+    }
+  }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Controls);
 
@@ -331,7 +350,10 @@ function SoundClips(_ref) {
   var clips = _ref.clips,
     setSelected = _ref.setSelected,
     burn = _ref.burn,
-    playbackSpeed = _ref.playbackSpeed;
+    playbackSpeed = _ref.playbackSpeed,
+    reverse = _ref.reverse,
+    loop = _ref.loop,
+    preservePitch = _ref.preservePitch;
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     console.log('update clips');
   }, [burn]);
@@ -344,7 +366,10 @@ function SoundClips(_ref) {
       clips: clips,
       idx: index,
       setSelected: setSelected,
-      playbackSpeed: playbackSpeed
+      playbackSpeed: playbackSpeed,
+      reverse: reverse,
+      loop: loop,
+      preservePitch: preservePitch
     });
   }));
 }
@@ -410,17 +435,21 @@ function Visualizer(_ref) {
       canvasCtx.stroke();
     }
   };
-  window.onresize = function () {
-    canvasRef.width = mainSection.offsetWidth;
-  };
-  window.onresize();
+
+  // window.onresize = function() {
+  //   console.log('lalalalalalalalalalalalalalalalalalalala');
+  //   canvasRef.current.width = 500;
+  // }
+
+  // window.onresize();
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "Waveform"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("canvas", {
     className: "visualizer",
     ref: canvasRef,
-    height: "80px",
-    width: "500px"
+    height: "100px",
+    width: 500
   }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Visualizer);
@@ -533,7 +562,7 @@ var reverse = /*#__PURE__*/function () {
                     console.log('reversedBlob', reversedBlob);
                     reversedURL = window.URL.createObjectURL(reversedBlob);
                     console.log('end', reversedURL);
-                    clips.current[selected].reversed = reversedURL;
+                    clips.current[selected].reversedSrc = reversedURL;
                   case 8:
                   case "end":
                     return _context.stop();

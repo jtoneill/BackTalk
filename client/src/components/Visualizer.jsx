@@ -64,15 +64,16 @@ function Visualizer({ mainSection }) {
     }
   }
 
-  window.onresize = function() {
-    canvasRef.width = mainSection.offsetWidth;
-  }
+  // window.onresize = function() {
+  //   console.log('lalalalalalalalalalalalalalalalalalalala');
+  //   canvasRef.current.width = 500;
+  // }
 
-  window.onresize();
+  // window.onresize();
 
   return (
     <div id="Waveform">
-      <canvas className="visualizer" ref={canvasRef} height="80px" width="500px"></canvas>
+      <canvas className="visualizer" ref={canvasRef} height="100px" width={500}></canvas>
     </div>
   );
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Visualizer from './Visualizer.jsx';
 import Controls from './Controls.jsx';
 import SoundClips from './SoundClips.jsx';
-import reverse from '../utils/reverse.js';
+import reverseBlob from '../utils/reverse.js';
 
 function App() {
 
@@ -11,21 +11,31 @@ function App() {
   const [recording, setRecording] = useState(false);
   const [selected, setSelected] = useState(0);
 
+  const [preservePitch, setPreservePitch] = useState(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [reverse, setReverse] = useState(false);
+  const [loop, setLoop] = useState(false);
 
-  const clips = useRef([
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-    {src: undefined, fSpeed: 1, rSpeed: 1},
-  ]);
-  const mainSection = useRef();
+  const chunks = useRef();
   const mediaRecorder = useRef();
   const soundClips = useRef();
-  const chunks = useRef();
+  const clips = useRef([]);
+
+  if(clips.current.length === 0) {
+    for(let i = 0; i < 8; i += 1) {
+      clips.current.push(
+        {
+          forwardSrc: undefined,
+          reversedSrc: undefined,
+          fSpeed: 1,
+          rSpeed: 1,
+          reversed: false,
+          pitchLock: false,
+          loop: false,
+        }
+      );
+    }
+  }
 
   let renderCount = useRef();
   if(!renderCount.current) {
@@ -69,7 +79,7 @@ function App() {
       mediaRecorder.current.onstop = function() {
         console.log("data available after MediaRecorder.stop() called.");
 
-        const clipName = `clip${selected}`;
+        const clipName = `clip ${selected}`;
 
         const blob = new Blob([...chunks.current], { 'type' : 'audio/wav' });
         console.log('blob:', blob);
@@ -77,13 +87,13 @@ function App() {
         const audioURL = window.URL.createObjectURL(blob);
         console.log('audioURL:', audioURL);
 
-        if(clips.current[selected.src !== undefined]) {
-          clips.current[selected].src.revokeObjectURL();
-          clips.current[selected].reversed.revokeObjectURL();
+        if(clips.current[selected.forwardSrc !== undefined]) {
+          clips.current[selected].forwardSrc.revokeObjectURL();
+          clips.current[selected].reversedSrc.revokeObjectURL();
         }
 
-        clips.current[selected].src = audioURL; // Saves the recording in clips
-        reverse(blob, clips, selected); // Saves the reversed recording in clips
+        clips.current[selected].forwardSrc = audioURL; // Saves the recording in clips
+        reverseBlob(blob, clips, selected); // Saves the reversed recording in clips
 
         console.log("audio saved to clips: ", clips.current);
 
@@ -109,15 +119,37 @@ function App() {
 
 
   return (
-    <div id="Wrapper" ref={mainSection}>
+    <div id="Wrapper" >
       <header>BackTalk{renderCount.current}</header>
       <div id="Recorder">
 
-        <Visualizer mainSection={mainSection}/>
+        <Visualizer />
 
-        <Controls recording={recording} record={record} stopRec={stopRec}/>
+        <Controls
+          recording={recording}
+          record={record}
+          stopRec={stopRec}
+          clips={clips}
+          selected={selected}
+          playbackSpeed={playbackSpeed}
+          setPlaybackSpeed={setPlaybackSpeed}
+          reverse={reverse}
+          setReverse={setReverse}
+          loop={loop}
+          setLoop={setLoop}
+          preservePitch={preservePitch}
+          setPreservePitch={setPreservePitch}
+        />
 
-        <SoundClips clips={clips} setSelected={setSelected} burn={burn}/>
+        <SoundClips
+          clips={clips}
+          setSelected={setSelected}
+          burn={burn}
+          playbackSpeed={playbackSpeed}
+          reverse={reverse}
+          loop={loop}
+          preservePitch={preservePitch}
+        />
 
       </div>
       <footer>footer</footer>
