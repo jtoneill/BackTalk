@@ -71,12 +71,11 @@ function App() {
   var soundClips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var clips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
   if (clips.current.length === 0) {
-    for (var i = 0; i < 8; i += 1) {
+    for (var i = 0; i < 4; i += 1) {
       clips.current.push({
         forwardSrc: undefined,
         reversedSrc: undefined,
-        fSpeed: 1,
-        rSpeed: 1,
+        speed: 1,
         reversed: false,
         pitchLock: false,
         loop: false
@@ -200,20 +199,29 @@ function Clip(_ref) {
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // updates the audio elements playbackRate
-    audioElement.current.playbackRate = reverse ? clips.current[idx].rSpeed : clips.current[idx].fSpeed;
+    audioElement.current.playbackRate = clips.current[idx].speed;
   }, [playbackSpeed]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // sets the speed to 1 on load
     audioElement.current.preservesPitch = clips.current[idx].pitchLock;
+    console.log('pitchLock toggled!!!!!!!!!');
   }, [preservePitch]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    audioElement.current.loop = clips.current[idx].loop;
+    console.log('a change to loop in a clip set the audioElements loop setting??????????????delete');
+  }, [clips.current[idx].loop]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    audioElement.current.src = clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc;
+  }, [clips.current[idx].reversed, clips.current[idx].forwardSrc]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "clip clip".concat(idx + 1),
     onClick: function onClick() {
       setSelected(idx);
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", null, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
-    controls: true,
-    src: soundClip.reversed ? soundClip.reversedSrc : soundClip.forwardSrc,
+    controls: true
+    // src={clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc}
+    ,
     ref: audioElement
   }));
 }
@@ -252,77 +260,73 @@ function Controls(_ref) {
   var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var pitch = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var reverseCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
+  var loopCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // sets the slider to the stored speed when switching between forward and reversed
-    if (reverse) {
-      slider.current.value = clips.current[selected].rSpeed;
-      setPlaybackSpeed(clips.current[selected].rSpeed);
-      pitch.current.checked = clips.current[selected].pitchLock;
-      reverseCheckbox.current.checked = true;
-    } else {
-      slider.current.value = clips.current[selected].fSpeed;
-      setPlaybackSpeed(clips.current[selected].fSpeed);
-      pitch.current.checked = clips.current[selected].pitchLock;
-      reverseCheckbox.current.checked = false;
-    }
+    slider.current.value = clips.current[selected].speed;
+    setPlaybackSpeed(clips.current[selected].speed);
+    pitch.current.checked = clips.current[selected].pitchLock;
+    reverseCheckbox.current.checked = clips.current[selected].reversed;
+    loopCheckbox.current.checked = clips.current[selected].loop;
   }, [selected, reverse]);
+  var applySettings = function applySettings() {};
 
   // useEffect(() => {
 
   // }, [selected])
 
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    slider.current.value = clips.current[selected].fSpeed;
+    slider.current.value = clips.current[selected].speed;
   }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "main-controls"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
     className: "record",
-    disabled: recording,
     onClick: function onClick(e) {
+      // record button
       e.preventDefault();
-      record();
+      if (recording) {
+        stopRec();
+      } else {
+        record();
+      }
     }
-  }, "Record"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
-    className: "stop",
-    disabled: !recording,
-    onClick: function onClick(e) {
-      e.preventDefault();
-      stopRec();
-    }
-  }, "Stop"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+  }, recording ? 'Stop' : 'Record'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "range",
     min: "0.1",
     max: "3",
     step: "0.1",
     ref: slider,
     onChange: function onChange(e) {
+      // sets playback speed
       slider.current.value = e.target.value;
+      clips.current[selected].speed = e.target.value;
       setPlaybackSpeed(e.target.value);
-      if (reverse) {
-        clips.current[selected].rSpeed = e.target.value;
-      } else {
-        clips.current[selected].fSpeed = e.target.value;
-      }
     },
     onMouseUp: function onMouseUp(e) {}
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     ref: reverseCheckbox,
     onChange: function onChange(e) {
-      // toggle the reversed audio source
-      console.log('toggle reverse', e.target.value);
-      setReverse(!clips.current[selected].reversed);
+      // toggle between the reversed and forward audio sources
       clips.current[selected].reversed = !clips.current[selected].reversed;
+      setReverse(!clips.current[selected].reversed);
     }
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     ref: pitch,
     onChange: function onChange(e) {
-      // allow pitch to shift
-      // audioElement.current.preservesPitch = preservePitch;
-      setPreservePitch(!preservePitch);
+      // allow pitch to shift / lock pitch
       clips.current[selected].pitchLock = !clips.current[selected].pitchLock;
+      setPreservePitch(!preservePitch);
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    type: "checkbox",
+    ref: loopCheckbox,
+    onChange: function onChange(e) {
+      // loops playback
+      clips.current[selected].loop = !clips.current[selected].loop;
+      setLoop(!loop);
     }
   }));
 }

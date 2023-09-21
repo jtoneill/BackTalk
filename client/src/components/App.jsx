@@ -22,13 +22,12 @@ function App() {
   const clips = useRef([]);
 
   if(clips.current.length === 0) {
-    for(let i = 0; i < 8; i += 1) {
+    for(let i = 0; i < 4; i += 1) {
       clips.current.push(
         {
           forwardSrc: undefined,
           reversedSrc: undefined,
-          fSpeed: 1,
-          rSpeed: 1,
+          speed: 1,
           reversed: false,
           pitchLock: false,
           loop: false,
