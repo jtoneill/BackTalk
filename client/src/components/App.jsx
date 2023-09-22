@@ -97,6 +97,7 @@ function App() {
         console.log("audio saved to clips: ", clips.current);
 
         setBurn(!burn);
+        // setReverse(!reverse);
 
       }
     }
@@ -119,7 +120,7 @@ function App() {
 
   return (
     <div id="Wrapper" >
-      <header>BackTalk{renderCount.current}</header>
+      <header>BackTalk</header>
       <div id="Recorder">
 
         <Visualizer />
@@ -142,6 +143,7 @@ function App() {
 
         <SoundClips
           clips={clips}
+          selected={selected}
           setSelected={setSelected}
           burn={burn}
           playbackSpeed={playbackSpeed}
@@ -151,7 +153,7 @@ function App() {
         />
 
       </div>
-      <footer>footer</footer>
+      <footer>footer / App renders:{renderCount.current}</footer>
     </div>
   );
 

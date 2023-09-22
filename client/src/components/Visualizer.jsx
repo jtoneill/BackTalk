@@ -32,11 +32,11 @@ function Visualizer({ mainSection }) {
 
       analyser.getByteTimeDomainData(dataArray);
 
-      canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+      canvasCtx.fillStyle = 'rgba(30, 30, 30, 0.5)';
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+      canvasCtx.strokeStyle = 'rgb(0, 255, 13)';
 
       canvasCtx.beginPath();
 

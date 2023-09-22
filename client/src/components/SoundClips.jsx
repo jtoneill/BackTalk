@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Clip from './Clip.jsx';
 
-function SoundClips({ clips, setSelected, burn, playbackSpeed, reverse, loop, preservePitch }) {
+function SoundClips({ clips, selected, setSelected, burn, playbackSpeed, reverse, loop, preservePitch }) {
 
   useEffect(() => {
     console.log('update clips');
@@ -16,6 +16,7 @@ function SoundClips({ clips, setSelected, burn, playbackSpeed, reverse, loop, pr
             soundClip={soundClip}
             clips={clips}
             idx={index}
+            selected={selected}
             setSelected={setSelected}
             playbackSpeed={playbackSpeed}
             reverse={reverse}

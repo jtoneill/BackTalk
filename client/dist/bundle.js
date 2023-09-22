@@ -131,8 +131,10 @@ function App() {
 
         console.log("audio saved to clips: ", clips.current);
         setBurn(!burn);
+        // setReverse(!reverse);
       };
     };
+
     var onError = function onError(err) {
       console.log('The following error occured: ' + err);
     };
@@ -144,7 +146,7 @@ function App() {
   }
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "Wrapper"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("header", null, "BackTalk", renderCount.current), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("header", null, "BackTalk"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "Recorder"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Visualizer_jsx__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Controls_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     recording: recording,
@@ -162,13 +164,14 @@ function App() {
     setPreservePitch: setPreservePitch
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_SoundClips_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
     clips: clips,
+    selected: selected,
     setSelected: setSelected,
     burn: burn,
     playbackSpeed: playbackSpeed,
     reverse: reverse,
     loop: loop,
     preservePitch: preservePitch
-  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("footer", null, "footer"));
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("footer", null, "footer / App renders:", renderCount.current));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
 
@@ -191,15 +194,18 @@ __webpack_require__.r(__webpack_exports__);
 function Clip(_ref) {
   var soundClip = _ref.soundClip,
     idx = _ref.idx,
+    selected = _ref.selected,
     setSelected = _ref.setSelected,
     clips = _ref.clips,
     playbackSpeed = _ref.playbackSpeed,
     reverse = _ref.reverse,
+    loop = _ref.loop,
     preservePitch = _ref.preservePitch;
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // updates the audio elements playbackRate
     audioElement.current.playbackRate = clips.current[idx].speed;
+    console.log('playback speed set!!!!!!');
   }, [playbackSpeed]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // sets the speed to 1 on load
@@ -208,20 +214,24 @@ function Clip(_ref) {
   }, [preservePitch]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     audioElement.current.loop = clips.current[idx].loop;
-    console.log('a change to loop in a clip set the audioElements loop setting??????????????delete');
-  }, [clips.current[idx].loop]);
+    console.log('loop toggled!!!!!!!!!!!');
+  }, [loop]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    audioElement.current.src = clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc;
-  }, [clips.current[idx].reversed, clips.current[idx].forwardSrc]);
+    audioElement.current.playbackRate = clips.current[idx].speed;
+    console.log('reverse toggled');
+  }, [reverse]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-    className: "clip clip".concat(idx + 1),
+    className: selected === idx ? 'clip selected' : 'clip',
     onClick: function onClick() {
+      // sets focus for controls
       setSelected(idx);
     }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", null, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
-    controls: true
-    // src={clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc}
-    ,
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: "clipLabel"
+  }, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
+    className: "audioPlayer",
+    controls: true,
+    src: clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc,
     ref: audioElement
   }));
 }
@@ -262,14 +272,20 @@ function Controls(_ref) {
   var reverseCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var loopCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // sets the slider to the stored speed when switching between forward and reversed
+    // sets the settings to the stored settings when switching between forward and reversed
     slider.current.value = clips.current[selected].speed;
-    setPlaybackSpeed(clips.current[selected].speed);
     pitch.current.checked = clips.current[selected].pitchLock;
     reverseCheckbox.current.checked = clips.current[selected].reversed;
     loopCheckbox.current.checked = clips.current[selected].loop;
+    applySettings();
   }, [selected, reverse]);
-  var applySettings = function applySettings() {};
+  var applySettings = function applySettings() {
+    setPlaybackSpeed(clips.current[selected].speed);
+    setPreservePitch(clips.current[selected].pitchLock);
+    setReverse(clips.current[selected].reversed);
+    setLoop(clips.current[selected].loop);
+    console.log('settings applied to clip', selected + 1);
+  };
 
   // useEffect(() => {
 
@@ -277,21 +293,31 @@ function Controls(_ref) {
 
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     slider.current.value = clips.current[selected].speed;
+    // applySettings();
   }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-    id: "main-controls"
+    className: recording ? "main-controls recording" : "main-controls"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "controlDivider"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
-    className: "record",
+    id: recording ? "stopButton" : "recordButton",
     onClick: function onClick(e) {
       // record button
       e.preventDefault();
       if (recording) {
         stopRec();
+        // setReverse(!reverse);
+        applySettings();
       } else {
         record();
       }
     }
-  }, recording ? 'Stop' : 'Record'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+  }, recording ? 'Stop' : 'Record')), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "controlDivider"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: "label"
+  }, "Speed"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    className: "speedSlider",
     type: "range",
     min: "0.1",
     max: "3",
@@ -302,33 +328,50 @@ function Controls(_ref) {
       slider.current.value = e.target.value;
       clips.current[selected].speed = e.target.value;
       setPlaybackSpeed(e.target.value);
-    },
-    onMouseUp: function onMouseUp(e) {}
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+      console.log('slider value changed');
+    }
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "checkboxes controlDivider"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "box"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: "label"
+  }, "Reverse"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     ref: reverseCheckbox,
     onChange: function onChange(e) {
       // toggle between the reversed and forward audio sources
       clips.current[selected].reversed = !clips.current[selected].reversed;
-      setReverse(!clips.current[selected].reversed);
+      setReverse(clips.current[selected].reversed);
+      console.log('reverse checkbox changed');
     }
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "box"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: "label"
+  }, "Pitch Lock"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     ref: pitch,
     onChange: function onChange(e) {
       // allow pitch to shift / lock pitch
       clips.current[selected].pitchLock = !clips.current[selected].pitchLock;
       setPreservePitch(!preservePitch);
+      console.log('pitch checkbox changed');
     }
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "box"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: "label"
+  }, "Loop"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     type: "checkbox",
     ref: loopCheckbox,
     onChange: function onChange(e) {
       // loops playback
       clips.current[selected].loop = !clips.current[selected].loop;
       setLoop(!loop);
+      console.log('loop checkbox changed');
     }
-  }));
+  }))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Controls);
 
@@ -352,6 +395,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function SoundClips(_ref) {
   var clips = _ref.clips,
+    selected = _ref.selected,
     setSelected = _ref.setSelected,
     burn = _ref.burn,
     playbackSpeed = _ref.playbackSpeed,
@@ -369,6 +413,7 @@ function SoundClips(_ref) {
       soundClip: soundClip,
       clips: clips,
       idx: index,
+      selected: selected,
       setSelected: setSelected,
       playbackSpeed: playbackSpeed,
       reverse: reverse,
@@ -418,10 +463,10 @@ function Visualizer(_ref) {
       var canvasCtx = canvasRef.current.getContext("2d");
       requestAnimationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
-      canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+      canvasCtx.fillStyle = 'rgba(30, 30, 30, 0.5)';
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+      canvasCtx.strokeStyle = 'rgb(0, 255, 13)';
       canvasCtx.beginPath();
       var sliceWidth = WIDTH * 1.0 / bufferLength;
       var x = 0;
