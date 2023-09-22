@@ -1,67 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function Clip({ soundClip, idx, setSelected, clips }) {
+function Clip({ soundClip, idx, selected, setSelected, clips, playbackSpeed, reverse, loop, preservePitch }) {
 
-  const [preservePitch, setPreservePitch] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [reverse, setReverse] = useState(false);
+
   const audioElement = useRef();
-  const slider = useRef();
+
 
   useEffect(() => { // updates the audio elements playbackRate
-    audioElement.current.playbackRate = playbackSpeed;
+    audioElement.current.playbackRate = clips.current[idx].speed;
+    console.log('playback speed set!!!!!!');
   }, [playbackSpeed]);
 
-  useEffect(() => { // sets the slider to the stored speed when switching between forward and reversed
-    if(reverse) {
-      slider.current.value = clips.current[idx].rSpeed;
-      setPlaybackSpeed(clips.current[idx].rSpeed);
-    } else {
-      slider.current.value = clips.current[idx].fSpeed;
-      setPlaybackSpeed(clips.current[idx].fSpeed);
-    }
+  useEffect(() => { // sets the speed to 1 on load
+    audioElement.current.preservesPitch = clips.current[idx].pitchLock;
+    console.log('pitchLock toggled!!!!!!!!!');
+  }, [preservePitch]);
+
+  useEffect(() => {
+    audioElement.current.loop = clips.current[idx].loop;
+    console.log('loop toggled!!!!!!!!!!!');
+  }, [loop]);
+
+  useEffect(() => {
+    audioElement.current.playbackRate = clips.current[idx].speed;
+    console.log('reverse toggled');
   }, [reverse]);
 
-  useEffect(() => { // sets the speed to 1 on load
-    slider.current.value = soundClip.fSpeed;
-  }, []);
-
   return (
-    <div className={`clip clip${idx + 1}`} onClick={() => { setSelected(idx) }}>
-      <p>{`clip ${idx + 1}`}</p>
-      <audio controls src={reverse ? soundClip.reversed : soundClip.src} ref={audioElement}/>
-      <input
-        type="range"
-        min="0.1"
-        max="3"
-        step="0.1"
-        ref={slider}
-        onChange={(e) => {
-          slider.current.value = e.target.value;
-          setPlaybackSpeed(e.target.value);
-        }}
-        onMouseUp={(e) => {
-          if(reverse) {
-            clips.current[idx].rSpeed = e.target.value;
-          } else {
-            clips.current[idx].fSpeed = e.target.value;
-          }
-        }}
-      />
-      <input
-        type="checkbox"
-        onChange={(e) => { // use the reversed audio source
-          console.log(e.target.value);
-          setReverse(!reverse);
-
-        }}
-      />
-      <input
-        type="checkbox"
-        onChange={(e) => { // allow pitch to shift
-          audioElement.current.preservesPitch = preservePitch;
-          setPreservePitch(!preservePitch);
-        }}
+    <div
+      className={selected === idx ? 'clip selected' : 'clip'}
+      onClick={() => { // sets focus for controls
+        setSelected(idx);
+      }}
+    >
+      <p className="clipLabel">{`clip ${idx + 1}`}</p>
+      <audio
+        className="audioPlayer"
+        controls
+        src={clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc}
+        ref={audioElement}
       />
     </div>
   );

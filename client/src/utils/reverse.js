@@ -29,7 +29,7 @@ const reverse = async function(blob, clips, selected) {
     const reversedURL = window.URL.createObjectURL(reversedBlob);
     console.log('end', reversedURL);
 
-    clips.current[selected].reversed = reversedURL;
+    clips.current[selected].reversedSrc = reversedURL;
   });
 };
 

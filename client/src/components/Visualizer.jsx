@@ -32,11 +32,11 @@ function Visualizer({ mainSection }) {
 
       analyser.getByteTimeDomainData(dataArray);
 
-      canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+      canvasCtx.fillStyle = 'rgba(30, 30, 30, 0.5)';
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+      canvasCtx.strokeStyle = 'rgb(0, 255, 13)';
 
       canvasCtx.beginPath();
 
@@ -64,15 +64,16 @@ function Visualizer({ mainSection }) {
     }
   }
 
-  window.onresize = function() {
-    canvasRef.width = mainSection.offsetWidth;
-  }
+  // window.onresize = function() {
+  //   console.log('lalalalalalalalalalalalalalalalalalalala');
+  //   canvasRef.current.width = 500;
+  // }
 
-  window.onresize();
+  // window.onresize();
 
   return (
     <div id="Waveform">
-      <canvas className="visualizer" ref={canvasRef} height="80px" width="500px"></canvas>
+      <canvas className="visualizer" ref={canvasRef} height="100px" width={500}></canvas>
     </div>
   );
 

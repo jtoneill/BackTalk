@@ -1,7 +1,7 @@
 body {
   font-family: 'Jost', sans-serif;
   font-weight: 800;
-  background-color: rgb(237, 237, 237);
+  background-color: rgb(202 202 202);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,22 +16,24 @@ header, footer{
   align-items: center;
   width: 100%;
   height: 50px;
-
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
 }
 
 footer {
   position: fixed;
   left: 0;
   bottom: 0;
+  background-color: white;
 }
 
 header {
   position: fixed;
   left: 0;
   top: 0;
-  font-size: 40px;
+  font-size: 100px;
   padding-top: 30px;
   padding-bottom: 30px;
+  background-color: white;
 }
 
 #root {
@@ -57,9 +59,171 @@ header {
   flex-direction: row;
   margin-top: 10px;
   margin-bottom: 10px;
-  padding: 5px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 50px;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5);
+}
+
+.audioPlayer{
+  width: 400px;
+}
+
+.selected{
+  background-color: lawnGreen;
+}
+
+.main-controls{
+  background-color: white;
+  width: 40%;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 40px;
+  padding: 10px;
+  justify-content: space-around;
+  box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5);
+}
+
+.controlDivider{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#recordButton{
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 40px;
+  padding: 14px;
+  width: 70px;
+  height: 70px;
+  background-color: red;
+}
+
+#stopButton{
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 0px;
+  padding: 14px;
+  width: 70px;
+  height: 70px;
+  background-color: red;
+}
+
+.checkboxes{
+  justify-content: space-evenly;
+}
+
+.box{
+  display: flex;
+}
+
+/* .recording{
+  background-color: red;
+} */
+
+#sound-clips{
+  width: 40%;
+}
+
+.clipLabel{
+  margin-right: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 20px;
+}
+
+.label{
+  margin-right: 10px;
+}
+
+.visualizer{
+  border-radius: 10px;
+  margin: 10px;
+  box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5);
 }
 
 p{
-  margin-right: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+datalist {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  writing-mode: vertical-lr;
+  width: 200px;
+}
+
+option {
+  padding: 0;
+}
+
+
+/*********** Alyssa Holland's range css generator ***********/
+/*********** Baseline, reset styles ***********/
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 30rem;
+  margin: 0;
+}
+
+/* Removes default focus */
+input[type="range"]:focus {
+  outline: none;
+}
+
+/******** Chrome, Safari, Opera and Edge Chromium styles ********/
+/* slider track */
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: #dbdbdb;
+  border-radius: 0.5rem;
+  height: 0.5rem;
+}
+
+/* slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: -8px; /* Centers thumb on the track */
+  background-color: lawnGreen;
+  border-radius: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: 3px solid lawnGreen;
+  outline-offset: 0.125rem;
+}
+
+/*********** Firefox styles ***********/
+/* slider track */
+input[type="range"]::-moz-range-track {
+  background-color: #dbdbdb;
+  border-radius: 0.5rem;
+  height: 0.5rem;
+}
+
+/* slider thumb */
+input[type="range"]::-moz-range-thumb {
+  background-color: #1c90fd;
+  border: none; /*Removes extra border that FF applies*/
+  border-radius: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+input[type="range"]:focus::-moz-range-thumb{
+  outline: 3px solid #1c90fd;
+  outline-offset: 0.125rem;
 }
