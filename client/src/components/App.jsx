@@ -2,17 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import Visualizer from './Visualizer.jsx';
 import Controls from './Controls.jsx';
 import SoundClips from './SoundClips.jsx';
-import reverseBlob from '../utils/reverse.js';
+import processAudio from '../utils/processAudio.js';
+import convert from '../utils/convert.js';
 
 function App() {
 
   const [burn, setBurn] = useState(false);
+  const [toggle, setToggle] = useState(false);
   const [permission, setPermission] = useState(false);
   const [recording, setRecording] = useState(false);
   const [selected, setSelected] = useState(0);
 
   const [preservePitch, setPreservePitch] = useState(true);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [playbackSpeed, setPlaybackSpeed] = useState(0.6);
   const [reverse, setReverse] = useState(false);
   const [loop, setLoop] = useState(false);
 
@@ -20,6 +22,7 @@ function App() {
   const mediaRecorder = useRef();
   const soundClips = useRef();
   const clips = useRef([]);
+  // const playbackSpeed = useRef(clips.current[selected]?.speed || 1);
 
   if(clips.current.length === 0) {
     for(let i = 0; i < 4; i += 1) {
@@ -48,19 +51,16 @@ function App() {
     setRecording(true);
     chunks.current = [];
     mediaRecorder.current.start(1000);
-    console.log(mediaRecorder.current.state);
-    console.log("recorder started");
+    console.log('recorder state:', mediaRecorder.current.state);
   }
 
   const stopRec = function() {
     setRecording(false);
     mediaRecorder.current.stop();
-    console.log(mediaRecorder.current.state);
-    console.log("recorder stopped");
+    console.log('recorder state:', mediaRecorder.current.state);
   }
 
   if (navigator.mediaDevices.getUserMedia) {
-    console.log('getUserMedia supported.');
 
     const constraints = { audio: true };
 
@@ -73,33 +73,22 @@ function App() {
       mediaRecorder.current.ondataavailable = function(e) {
         chunks.current.push(e.data);
         console.log('chunk: ', e.data, 'chunks: ', chunks.current);
-      }
+      };
 
       mediaRecorder.current.onstop = function() {
-        console.log("data available after MediaRecorder.stop() called.");
 
         const clipName = `clip ${selected}`;
 
-        const blob = new Blob([...chunks.current], { 'type' : 'audio/wav' });
-        console.log('blob:', blob);
+        const chunksBlob = new Blob([...chunks.current], { 'type' : 'audio/wav' });
+        console.log('blob:', chunksBlob);
 
-        const audioURL = window.URL.createObjectURL(blob);
-        console.log('audioURL:', audioURL);
+        processAudio(chunksBlob, clips, selected); // Saves the reversed recording in clips
 
-        if(clips.current[selected.forwardSrc !== undefined]) {
-          clips.current[selected].forwardSrc.revokeObjectURL();
-          clips.current[selected].reversedSrc.revokeObjectURL();
-        }
+        setTimeout(() => {
+          setBurn(!burn);
+        }, 50);
 
-        clips.current[selected].forwardSrc = audioURL; // Saves the recording in clips
-        reverseBlob(blob, clips, selected); // Saves the reversed recording in clips
-
-        console.log("audio saved to clips: ", clips.current);
-
-        setBurn(!burn);
-        // setReverse(!reverse);
-
-      }
+      };
     }
 
     let onError = function(err) {
@@ -107,7 +96,6 @@ function App() {
     }
 
     if(mediaRecorder.current === undefined || mediaRecorder.current.state === 'inactive') {
-
       navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
     }
 
@@ -139,17 +127,19 @@ function App() {
           setLoop={setLoop}
           preservePitch={preservePitch}
           setPreservePitch={setPreservePitch}
+          burn={burn}
+          setBurn={setBurn}
         />
 
         <SoundClips
           clips={clips}
           selected={selected}
           setSelected={setSelected}
-          burn={burn}
           playbackSpeed={playbackSpeed}
           reverse={reverse}
           loop={loop}
           preservePitch={preservePitch}
+          burn={burn}
         />
 
       </div>
