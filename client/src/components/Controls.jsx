@@ -13,14 +13,16 @@ function Controls({
   loop,
   setLoop,
   preservePitch,
-  setPreservePitch
+  setPreservePitch,
+  burn,
+  setBurn
 }) {
   const slider = useRef();
   const pitch = useRef();
   const reverseCheckbox = useRef();
   const loopCheckbox = useRef();
 
-  useEffect(() => { // sets the settings to the stored settings when switching between forward and reversed
+  useEffect(() => { // sets the settings to the stored settings when switching between forward and reversed or clips
     slider.current.value = clips.current[selected].speed;
     pitch.current.checked = clips.current[selected].pitchLock;
     reverseCheckbox.current.checked = clips.current[selected].reversed;
@@ -33,30 +35,29 @@ function Controls({
     setPreservePitch(clips.current[selected].pitchLock);
     setReverse(clips.current[selected].reversed);
     setLoop(clips.current[selected].loop);
-    console.log('settings applied to clip', selected + 1);
+    console.log('settings applied to clip', selected + 1, 'playbackspeed: ', playbackSpeed, '=', clips.current[selected].speed);
   };
-
-  // useEffect(() => {
-
-  // }, [selected])
 
   useEffect(() => {
     slider.current.value = clips.current[selected].speed;
-    // applySettings();
   }, []);
 
   return (
-    <div className={recording ? "main-controls recording" : "main-controls"} >
+    <div className="main-controls" >
 
       <div className="controlDivider">
         <button
-          id={recording ? "stopButton" : "recordButton"}
+          id={recording ? "recordStopButton" : "recordStartButton"}
           onClick={(e) => { // record button
             e.preventDefault();
             if(recording) {
               stopRec();
-              // setReverse(!reverse);
-              applySettings();
+              clips.current[selected].reversed = false;
+
+              setTimeout(() => {
+                applySettings();
+              }, 50);
+
             } else {
               record();
             }
@@ -65,19 +66,25 @@ function Controls({
       </div>
 
       <div className="controlDivider">
-        <p className="label">Speed</p>
+        <p className="label">{`Speed: ${clips.current[selected].speed}`}</p>
         <input
           className="speedSlider"
           type="range"
           min="0.1"
           max="3"
-          step="0.1"
+          step="0.01"
           ref={slider}
+          // onClick={(e) => { // sets playback speed
+          //   slider.current.value = e.target.value;
+          //   clips.current[selected].speed = e.target.value;
+          //   setPlaybackSpeed(clips.current[selected].speed);
+          //   console.log('slider value clicked to:', e.target.value);
+          // }}
           onChange={(e) => { // sets playback speed
             slider.current.value = e.target.value;
             clips.current[selected].speed = e.target.value;
-            setPlaybackSpeed(e.target.value);
-            console.log('slider value changed');
+            setPlaybackSpeed(clips.current[selected].speed);
+            console.log('slider value changed to:', e.target.value);
           }}
         />
       </div>
@@ -121,11 +128,10 @@ function Controls({
             }}
           />
         </div>
-      </div>
 
+      </div>
     </div>
   );
-
 }
 
 export default Controls;

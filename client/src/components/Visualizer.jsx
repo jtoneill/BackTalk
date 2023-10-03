@@ -21,7 +21,7 @@ function Visualizer({ mainSection }) {
     source.connect(analyser);
     //analyser.connect(audioCtx.destination);
 
-    draw()
+    draw();
 
     function draw() {
       const WIDTH = canvasRef.current.width
@@ -64,16 +64,9 @@ function Visualizer({ mainSection }) {
     }
   }
 
-  // window.onresize = function() {
-  //   console.log('lalalalalalalalalalalalalalalalalalalala');
-  //   canvasRef.current.width = 500;
-  // }
-
-  // window.onresize();
-
   return (
     <div id="Waveform">
-      <canvas className="visualizer" ref={canvasRef} height="100px" width={500}></canvas>
+      <canvas className="visualizer" ref={canvasRef} height="100px" width={850}></canvas>
     </div>
   );
 

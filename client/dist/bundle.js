@@ -17,7 +17,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Visualizer_jsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Visualizer.jsx */ "./client/src/components/Visualizer.jsx");
 /* harmony import */ var _Controls_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Controls.jsx */ "./client/src/components/Controls.jsx");
 /* harmony import */ var _SoundClips_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SoundClips.jsx */ "./client/src/components/SoundClips.jsx");
-/* harmony import */ var _utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/reverse.js */ "./client/src/utils/reverse.js");
+/* harmony import */ var _utils_processAudio_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/processAudio.js */ "./client/src/utils/processAudio.js");
+/* harmony import */ var _utils_convert_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/convert.js */ "./client/src/utils/convert.js");
+/* harmony import */ var _utils_convert_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_utils_convert_js__WEBPACK_IMPORTED_MODULE_5__);
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
@@ -33,6 +35,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
 function App() {
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState2 = _slicedToArray(_useState, 2),
@@ -40,36 +43,42 @@ function App() {
     setBurn = _useState2[1];
   var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState4 = _slicedToArray(_useState3, 2),
-    permission = _useState4[0],
-    setPermission = _useState4[1];
+    toggle = _useState4[0],
+    setToggle = _useState4[1];
   var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState6 = _slicedToArray(_useState5, 2),
-    recording = _useState6[0],
-    setRecording = _useState6[1];
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+    permission = _useState6[0],
+    setPermission = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState8 = _slicedToArray(_useState7, 2),
-    selected = _useState8[0],
-    setSelected = _useState8[1];
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    recording = _useState8[0],
+    setRecording = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
     _useState10 = _slicedToArray(_useState9, 2),
-    preservePitch = _useState10[0],
-    setPreservePitch = _useState10[1];
-  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    selected = _useState10[0],
+    setSelected = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
     _useState12 = _slicedToArray(_useState11, 2),
-    playbackSpeed = _useState12[0],
-    setPlaybackSpeed = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    preservePitch = _useState12[0],
+    setPreservePitch = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0.6),
     _useState14 = _slicedToArray(_useState13, 2),
-    reverse = _useState14[0],
-    setReverse = _useState14[1];
+    playbackSpeed = _useState14[0],
+    setPlaybackSpeed = _useState14[1];
   var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState16 = _slicedToArray(_useState15, 2),
-    loop = _useState16[0],
-    setLoop = _useState16[1];
+    reverse = _useState16[0],
+    setReverse = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState18 = _slicedToArray(_useState17, 2),
+    loop = _useState18[0],
+    setLoop = _useState18[1];
   var chunks = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var mediaRecorder = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var soundClips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var clips = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)([]);
+  // const playbackSpeed = useRef(clips.current[selected]?.speed || 1);
+
   if (clips.current.length === 0) {
     for (var i = 0; i < 4; i += 1) {
       clips.current.push({
@@ -92,17 +101,14 @@ function App() {
     setRecording(true);
     chunks.current = [];
     mediaRecorder.current.start(1000);
-    console.log(mediaRecorder.current.state);
-    console.log("recorder started");
+    console.log('recorder state:', mediaRecorder.current.state);
   };
   var stopRec = function stopRec() {
     setRecording(false);
     mediaRecorder.current.stop();
-    console.log(mediaRecorder.current.state);
-    console.log("recorder stopped");
+    console.log('recorder state:', mediaRecorder.current.state);
   };
   if (navigator.mediaDevices.getUserMedia) {
-    console.log('getUserMedia supported.');
     var constraints = {
       audio: true
     };
@@ -114,27 +120,18 @@ function App() {
         console.log('chunk: ', e.data, 'chunks: ', chunks.current);
       };
       mediaRecorder.current.onstop = function () {
-        console.log("data available after MediaRecorder.stop() called.");
         var clipName = "clip ".concat(selected);
-        var blob = new Blob(_toConsumableArray(chunks.current), {
+        var chunksBlob = new Blob(_toConsumableArray(chunks.current), {
           'type': 'audio/wav'
         });
-        console.log('blob:', blob);
-        var audioURL = window.URL.createObjectURL(blob);
-        console.log('audioURL:', audioURL);
-        if (clips.current[selected.forwardSrc !== undefined]) {
-          clips.current[selected].forwardSrc.revokeObjectURL();
-          clips.current[selected].reversedSrc.revokeObjectURL();
-        }
-        clips.current[selected].forwardSrc = audioURL; // Saves the recording in clips
-        (0,_utils_reverse_js__WEBPACK_IMPORTED_MODULE_4__["default"])(blob, clips, selected); // Saves the reversed recording in clips
+        console.log('blob:', chunksBlob);
+        (0,_utils_processAudio_js__WEBPACK_IMPORTED_MODULE_4__["default"])(chunksBlob, clips, selected); // Saves the reversed recording in clips
 
-        console.log("audio saved to clips: ", clips.current);
-        setBurn(!burn);
-        // setReverse(!reverse);
+        setTimeout(function () {
+          setBurn(!burn);
+        }, 50);
       };
     };
-
     var onError = function onError(err) {
       console.log('The following error occured: ' + err);
     };
@@ -161,16 +158,18 @@ function App() {
     loop: loop,
     setLoop: setLoop,
     preservePitch: preservePitch,
-    setPreservePitch: setPreservePitch
+    setPreservePitch: setPreservePitch,
+    burn: burn,
+    setBurn: setBurn
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_SoundClips_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
     clips: clips,
     selected: selected,
     setSelected: setSelected,
-    burn: burn,
     playbackSpeed: playbackSpeed,
     reverse: reverse,
     loop: loop,
-    preservePitch: preservePitch
+    preservePitch: preservePitch,
+    burn: burn
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("footer", null, "footer / App renders:", renderCount.current));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
@@ -190,6 +189,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function Clip(_ref) {
   var soundClip = _ref.soundClip,
@@ -200,25 +205,34 @@ function Clip(_ref) {
     playbackSpeed = _ref.playbackSpeed,
     reverse = _ref.reverse,
     loop = _ref.loop,
-    preservePitch = _ref.preservePitch;
+    preservePitch = _ref.preservePitch,
+    burn = _ref.burn;
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState2 = _slicedToArray(_useState, 2),
+    playing = _useState2[0],
+    setPlaying = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+    _useState4 = _slicedToArray(_useState3, 2),
+    playTime = _useState4[0],
+    setPlayTime = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+    _useState6 = _slicedToArray(_useState5, 2),
+    duration = _useState6[0],
+    setDuration = _useState6[1];
   var audioElement = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // updates the audio elements playbackRate
+    // sets the audio element playback rate
     audioElement.current.playbackRate = clips.current[idx].speed;
-    console.log('playback speed set!!!!!!');
   }, [playbackSpeed]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // sets the speed to 1 on load
     audioElement.current.preservesPitch = clips.current[idx].pitchLock;
-    console.log('pitchLock toggled!!!!!!!!!');
   }, [preservePitch]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     audioElement.current.loop = clips.current[idx].loop;
-    console.log('loop toggled!!!!!!!!!!!');
   }, [loop]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    audioElement.current.playbackRate = clips.current[idx].speed;
-    console.log('reverse toggled');
+    setPlaying(false);
   }, [reverse]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: selected === idx ? 'clip selected' : 'clip',
@@ -228,11 +242,52 @@ function Clip(_ref) {
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
     className: "clipLabel"
-  }, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
+  }, "clip ".concat(idx + 1)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: !playing ? "clipButton clipPlay" : "clipButton clipPause",
+    onClick: function onClick(e) {
+      e.stopPropagation();
+      console.log('play button pressed on clip', idx + 1, 'playing was: ', playing);
+      if (playing) {
+        audioElement.current.pause();
+      } else {
+        // audioElement.current.load();
+        audioElement.current.playbackRate = clips.current[idx].speed;
+        audioElement.current.play();
+      }
+      console.log('speed---->', clips.current[selected].speed, '=', playbackSpeed);
+      setPlaying(!playing);
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "clipButton clipStop",
+    onClick: function onClick(e) {
+      e.stopPropagation();
+      console.log('stop button pressed on clip', idx + 1, 'playing: ', playing);
+      audioElement.current.pause();
+      audioElement.current.currentTime = 0;
+      setPlaying(false);
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", null, "".concat(playTime.toFixed(2), " / ").concat(duration.toFixed(2))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("a", {
+    href: clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc,
+    download: "clip"
+  }, "Download"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("audio", {
     className: "audioPlayer",
-    controls: true,
     src: clips.current[idx].reversed ? soundClip.reversedSrc : soundClip.forwardSrc,
-    ref: audioElement
+    preload: "auto",
+    ref: audioElement,
+    onPause: function onPause() {
+      setPlaying(false);
+    },
+    onEnded: function onEnded() {
+      setPlaying(false);
+      audioElement.current.currentTime = 0;
+      console.log('audio end reached');
+    },
+    onLoadedMetadata: function onLoadedMetadata() {
+      setDuration(audioElement.current.duration);
+    },
+    onTimeUpdate: function onTimeUpdate() {
+      setPlayTime(audioElement.current.currentTime);
+    }
   }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Clip);
@@ -266,13 +321,15 @@ function Controls(_ref) {
     loop = _ref.loop,
     setLoop = _ref.setLoop,
     preservePitch = _ref.preservePitch,
-    setPreservePitch = _ref.setPreservePitch;
+    setPreservePitch = _ref.setPreservePitch,
+    burn = _ref.burn,
+    setBurn = _ref.setBurn;
   var slider = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var pitch = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var reverseCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   var loopCheckbox = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    // sets the settings to the stored settings when switching between forward and reversed
+    // sets the settings to the stored settings when switching between forward and reversed or clips
     slider.current.value = clips.current[selected].speed;
     pitch.current.checked = clips.current[selected].pitchLock;
     reverseCheckbox.current.checked = clips.current[selected].reversed;
@@ -284,30 +341,26 @@ function Controls(_ref) {
     setPreservePitch(clips.current[selected].pitchLock);
     setReverse(clips.current[selected].reversed);
     setLoop(clips.current[selected].loop);
-    console.log('settings applied to clip', selected + 1);
+    console.log('settings applied to clip', selected + 1, 'playbackspeed: ', playbackSpeed, '=', clips.current[selected].speed);
   };
-
-  // useEffect(() => {
-
-  // }, [selected])
-
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     slider.current.value = clips.current[selected].speed;
-    // applySettings();
   }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
-    className: recording ? "main-controls recording" : "main-controls"
+    className: "main-controls"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "controlDivider"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
-    id: recording ? "stopButton" : "recordButton",
+    id: recording ? "recordStopButton" : "recordStartButton",
     onClick: function onClick(e) {
       // record button
       e.preventDefault();
       if (recording) {
         stopRec();
-        // setReverse(!reverse);
-        applySettings();
+        clips.current[selected].reversed = false;
+        setTimeout(function () {
+          applySettings();
+        }, 50);
       } else {
         record();
       }
@@ -316,19 +369,26 @@ function Controls(_ref) {
     className: "controlDivider"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
     className: "label"
-  }, "Speed"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+  }, "Speed: ".concat(clips.current[selected].speed)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
     className: "speedSlider",
     type: "range",
     min: "0.1",
     max: "3",
-    step: "0.1",
-    ref: slider,
+    step: "0.01",
+    ref: slider
+    // onClick={(e) => { // sets playback speed
+    //   slider.current.value = e.target.value;
+    //   clips.current[selected].speed = e.target.value;
+    //   setPlaybackSpeed(clips.current[selected].speed);
+    //   console.log('slider value clicked to:', e.target.value);
+    // }}
+    ,
     onChange: function onChange(e) {
       // sets playback speed
       slider.current.value = e.target.value;
       clips.current[selected].speed = e.target.value;
-      setPlaybackSpeed(e.target.value);
-      console.log('slider value changed');
+      setPlaybackSpeed(clips.current[selected].speed);
+      console.log('slider value changed to:', e.target.value);
     }
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     className: "checkboxes controlDivider"
@@ -397,14 +457,11 @@ function SoundClips(_ref) {
   var clips = _ref.clips,
     selected = _ref.selected,
     setSelected = _ref.setSelected,
-    burn = _ref.burn,
     playbackSpeed = _ref.playbackSpeed,
     reverse = _ref.reverse,
     loop = _ref.loop,
-    preservePitch = _ref.preservePitch;
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    console.log('update clips');
-  }, [burn]);
+    preservePitch = _ref.preservePitch,
+    burn = _ref.burn;
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "sound-clips"
   }, clips.current.map(function (soundClip, index) {
@@ -418,7 +475,8 @@ function SoundClips(_ref) {
       playbackSpeed: playbackSpeed,
       reverse: reverse,
       loop: loop,
-      preservePitch: preservePitch
+      preservePitch: preservePitch,
+      burn: burn
     });
   }));
 }
@@ -484,21 +542,13 @@ function Visualizer(_ref) {
       canvasCtx.stroke();
     }
   };
-
-  // window.onresize = function() {
-  //   console.log('lalalalalalalalalalalalalalalalalalalala');
-  //   canvasRef.current.width = 500;
-  // }
-
-  // window.onresize();
-
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
     id: "Waveform"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("canvas", {
     className: "visualizer",
     ref: canvasRef,
     height: "100px",
-    width: 500
+    width: 850
   }));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Visualizer);
@@ -562,10 +612,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./client/src/utils/reverse.js":
-/*!*************************************!*\
-  !*** ./client/src/utils/reverse.js ***!
-  \*************************************/
+/***/ "./client/src/utils/processAudio.js":
+/*!******************************************!*\
+  !*** ./client/src/utils/processAudio.js ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -578,41 +628,40 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 var convert = __webpack_require__(/*! ./convert.js */ "./client/src/utils/convert.js");
-var reverse = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(blob, clips, selected) {
-    var audioContext, arrBuffer;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+var processAudio = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(blob, clips, selected) {
+    var audioContext1, audioContext2, arrBuffer, arrBuffer2;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          _context2.next = 3;
+          audioContext1 = new (window.AudioContext || window.webkitAudioContext)();
+          audioContext2 = new (window.AudioContext || window.webkitAudioContext)();
+          _context3.next = 4;
           return blob.arrayBuffer();
-        case 3:
-          arrBuffer = _context2.sent;
-          console.log('dis', arrBuffer);
-          audioContext.decodeAudioData(arrBuffer, /*#__PURE__*/function () {
-            var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(audioBuffer) {
-              var reversedBuffer, channel, inputData, outputData, i, reversedWav, reversedBlob, reversedURL;
+        case 4:
+          arrBuffer = _context3.sent;
+          audioContext1.decodeAudioData(arrBuffer, /*#__PURE__*/function () {
+            var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(audioBuffer1) {
+              var forwardBuffer, channel, inputData, outputData, i, forwardWav, forwardBlob, forwardURL;
               return _regeneratorRuntime().wrap(function _callee$(_context) {
                 while (1) switch (_context.prev = _context.next) {
                   case 0:
-                    reversedBuffer = audioContext.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
-                    for (channel = 0; channel < audioBuffer.numberOfChannels; channel += 1) {
-                      inputData = audioBuffer.getChannelData(channel);
-                      outputData = reversedBuffer.getChannelData(channel);
-                      for (i = 0; i < audioBuffer.length; i += 1) {
-                        outputData[i] = inputData[audioBuffer.length - 1 - i];
+                    forwardBuffer = audioContext1.createBuffer(audioBuffer1.numberOfChannels, audioBuffer1.length, audioBuffer1.sampleRate);
+                    for (channel = 0; channel < audioBuffer1.numberOfChannels; channel += 1) {
+                      inputData = audioBuffer1.getChannelData(channel);
+                      outputData = forwardBuffer.getChannelData(channel);
+                      for (i = 0; i < audioBuffer1.length; i += 1) {
+                        outputData[i] = inputData[i];
                       }
                     }
-                    reversedWav = convert.buffToWav(reversedBuffer);
-                    reversedBlob = new Blob([reversedWav], {
+                    forwardWav = convert.buffToWav(forwardBuffer);
+                    forwardBlob = new Blob([forwardWav], {
                       'type': 'audio/wav'
                     });
-                    console.log('reversedBlob', reversedBlob);
-                    reversedURL = window.URL.createObjectURL(reversedBlob);
-                    console.log('end', reversedURL);
-                    clips.current[selected].reversedSrc = reversedURL;
-                  case 8:
+                    forwardURL = window.URL.createObjectURL(forwardBlob);
+                    clips.current[selected].forwardSrc = forwardURL;
+                    console.log('forward source set in clips object');
+                  case 7:
                   case "end":
                     return _context.stop();
                 }
@@ -622,17 +671,52 @@ var reverse = /*#__PURE__*/function () {
               return _ref2.apply(this, arguments);
             };
           }());
-        case 6:
+          _context3.next = 8;
+          return blob.arrayBuffer();
+        case 8:
+          arrBuffer2 = _context3.sent;
+          audioContext2.decodeAudioData(arrBuffer2, /*#__PURE__*/function () {
+            var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(audioBuffer2) {
+              var reversedBuffer, channel, inputData, outputData, i, reversedWav, reversedBlob, reversedURL;
+              return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                while (1) switch (_context2.prev = _context2.next) {
+                  case 0:
+                    reversedBuffer = audioContext2.createBuffer(audioBuffer2.numberOfChannels, audioBuffer2.length, audioBuffer2.sampleRate);
+                    for (channel = 0; channel < audioBuffer2.numberOfChannels; channel += 1) {
+                      inputData = audioBuffer2.getChannelData(channel);
+                      outputData = reversedBuffer.getChannelData(channel);
+                      for (i = 0; i < audioBuffer2.length; i += 1) {
+                        outputData[i] = inputData[audioBuffer2.length - 1 - i];
+                      }
+                    }
+                    reversedWav = convert.buffToWav(reversedBuffer);
+                    reversedBlob = new Blob([reversedWav], {
+                      'type': 'audio/wav'
+                    });
+                    reversedURL = window.URL.createObjectURL(reversedBlob);
+                    clips.current[selected].reversedSrc = reversedURL;
+                    console.log('reversed source set in clips object');
+                  case 7:
+                  case "end":
+                    return _context2.stop();
+                }
+              }, _callee2);
+            }));
+            return function (_x5) {
+              return _ref3.apply(this, arguments);
+            };
+          }());
+        case 10:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
-    }, _callee2);
+    }, _callee3);
   }));
-  return function reverse(_x, _x2, _x3) {
+  return function processAudio(_x, _x2, _x3) {
     return _ref.apply(this, arguments);
   };
 }();
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (reverse);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (processAudio);
 
 /***/ }),
 
