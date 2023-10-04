@@ -74,12 +74,6 @@ function Controls({
           max="3"
           step="0.01"
           ref={slider}
-          // onClick={(e) => { // sets playback speed
-          //   slider.current.value = e.target.value;
-          //   clips.current[selected].speed = e.target.value;
-          //   setPlaybackSpeed(clips.current[selected].speed);
-          //   console.log('slider value clicked to:', e.target.value);
-          // }}
           onChange={(e) => { // sets playback speed
             slider.current.value = e.target.value;
             clips.current[selected].speed = e.target.value;
