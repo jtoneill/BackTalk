@@ -82,6 +82,11 @@ function App() {
         const chunksBlob = new Blob([...chunks.current], { 'type' : 'audio/wav' });
         console.log('blob:', chunksBlob);
 
+        if(!clips.current[selected].forwardSrc) {
+          URL.revokeObjectURL(clips.current[selected].forwardSrc);
+          URL.revokeObjectURL(clips.current[selected].reversedSrc);
+        }
+
         processAudio(chunksBlob, clips, selected); // Saves the reversed recording in clips
 
         setTimeout(() => {

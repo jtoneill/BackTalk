@@ -125,6 +125,10 @@ function App() {
           'type': 'audio/wav'
         });
         console.log('blob:', chunksBlob);
+        if (!clips.current[selected].forwardSrc) {
+          URL.revokeObjectURL(clips.current[selected].forwardSrc);
+          URL.revokeObjectURL(clips.current[selected].reversedSrc);
+        }
         (0,_utils_processAudio_js__WEBPACK_IMPORTED_MODULE_4__["default"])(chunksBlob, clips, selected); // Saves the reversed recording in clips
 
         setTimeout(function () {
@@ -375,14 +379,7 @@ function Controls(_ref) {
     min: "0.1",
     max: "3",
     step: "0.01",
-    ref: slider
-    // onClick={(e) => { // sets playback speed
-    //   slider.current.value = e.target.value;
-    //   clips.current[selected].speed = e.target.value;
-    //   setPlaybackSpeed(clips.current[selected].speed);
-    //   console.log('slider value clicked to:', e.target.value);
-    // }}
-    ,
+    ref: slider,
     onChange: function onChange(e) {
       // sets playback speed
       slider.current.value = e.target.value;

@@ -1,7 +1,7 @@
 body {
   font-family: 'Jost', sans-serif;
   font-weight: 800;
-  background-color: rgb(202 202 202);
+  background-color: rgb(64 173 203);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,11 +68,29 @@ header {
 }
 
 .selected{
-  border-color: lawnGreen;
+  /* border-color: lawnGreen; */
   border-width: 5px;
   border-style: solid;
   box-shadow: 1px 1px 5px 7px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+
+  -webkit-animation: bgcolor 2s infinite;
+  animation: bgcolor 2s infinite;
+}
+
+@keyframes bgcolor {
+  0% {
+    border-color: #c91b1b;
+    box-shadow: 0px 0px 11px 5px rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    border-color: #6a1806;
+    box-shadow: 0px 0px 8px 5px rgba(97, 24, 0, 0.2);
+  }
+  100% {
+    border-color: #c91b1b;
+    box-shadow: 0px 0px 11px 5px rgba(255, 0, 0, 0.4);
+  }
 }
 
 .audioPlayer{
