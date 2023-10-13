@@ -60,7 +60,7 @@ function App() {
     console.log('recorder state:', mediaRecorder.current.state);
   }
 
-  if (navigator.mediaDevices.getUserMedia) {
+  if (navigator.mediaDevices?.getUserMedia) {
 
     const constraints = { audio: true };
 
