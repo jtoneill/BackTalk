@@ -37,6 +37,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 function App() {
+  var _navigator$mediaDevic;
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState2 = _slicedToArray(_useState, 2),
     burn = _useState2[0],
@@ -108,7 +109,7 @@ function App() {
     mediaRecorder.current.stop();
     console.log('recorder state:', mediaRecorder.current.state);
   };
-  if (navigator.mediaDevices.getUserMedia) {
+  if ((_navigator$mediaDevic = navigator.mediaDevices) !== null && _navigator$mediaDevic !== void 0 && _navigator$mediaDevic.getUserMedia) {
     var constraints = {
       audio: true
     };
