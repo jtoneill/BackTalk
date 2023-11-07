@@ -14,5 +14,9 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // app.use('/', router);
 
+app.get('/', (req, res) => {
+  res.status(200;)
+});
+
 app.listen(process.env.SV_PORT);
 console.log(`Listening at http://localhost:${process.env.SV_PORT}`);
